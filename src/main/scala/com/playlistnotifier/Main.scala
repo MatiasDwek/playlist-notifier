@@ -24,7 +24,7 @@ object Main extends App with RequestTimeout {
 
   implicit val materializer: Materializer = Materializer.matFromSystem // bindAndHandle requires an implicit materializer
   val bindingFuture: Future[ServerBinding] =
-    Http().bindAndHandle(api, host, port) //Starts the HTTP server
+    Http().bindAndHandle(api, host, port) // Starts the HTTP server
 
   val log = Logging(system.eventStream, "playlist-notifier")
   bindingFuture.onComplete {
