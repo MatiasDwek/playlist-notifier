@@ -8,6 +8,8 @@ object PlaylistHandler {
 
   def name = "playlistHandler"
 
+  case class GetPlaylist(name: String)
+
   case class FollowPlaylist(name: String)
 
   case class Playlist(name: String)
@@ -18,6 +20,9 @@ object PlaylistHandler {
 
   case object PlaylistAlreadyFollowed extends PlaylistResponse
 
+  case class PlaylistFound(playlist: Playlist) extends PlaylistResponse
+
+  case object PlaylistNotFound extends PlaylistResponse
 }
 
 class PlaylistHandler(implicit timeout: Timeout) extends Actor with ActorLogging {
@@ -25,6 +30,10 @@ class PlaylistHandler(implicit timeout: Timeout) extends Actor with ActorLogging
   import PlaylistHandler._
 
   def receive: Receive = {
+    case GetPlaylist(name) => {
+      log.info(s"Received playlist request $name")
+      sender() ! PlaylistFound(Playlist(name))
+    }
     case FollowPlaylist(name) => {
       log.info(s"Received playlist $name")
       sender() ! PlaylistFollowed(Playlist(name))

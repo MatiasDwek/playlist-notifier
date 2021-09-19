@@ -7,6 +7,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 import akka.pattern.ask
 import akka.util.Timeout
+import com.wrapper.spotify.requests.data.playlists.GetPlaylistRequest
 
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 
@@ -33,9 +34,12 @@ trait RestRoutes extends PlaylistHandlerApi
           println(s"TRACE ---->  $playlist")
           // POST /playlists/:playlist
           onSuccess(followPlaylist(playlist)) {
+            case PlaylistHandler.PlaylistFound(playlist) => complete(Created, playlist)
+            case PlaylistHandler.PlaylistNotFound => val err = Error(s"$playlist playlist not found already.")
+              complete(BadRequest, err)
             case PlaylistHandler.PlaylistFollowed(playlist) => complete(Created, playlist)
             case PlaylistHandler.PlaylistAlreadyFollowed =>
-              val err = Error(s"$playlist event exists already.")
+              val err = Error(s"$playlist already followed.")
               complete(BadRequest, err)
           }
 
@@ -56,6 +60,10 @@ trait PlaylistHandlerApi {
   implicit def requestTimeout: Timeout
 
   lazy val playlistHandler: ActorRef = createPlaylistHandler()
+
+  def getPlaylist(playlist: String): Future[PlaylistResponse] = {
+    playlistHandler.ask(GetPlaylist(playlist)).mapTo[PlaylistResponse]
+  }
 
   def followPlaylist(playlist: String): Future[PlaylistResponse] = {
     playlistHandler.ask(FollowPlaylist(playlist)).mapTo[PlaylistResponse]

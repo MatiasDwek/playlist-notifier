@@ -28,9 +28,8 @@ object Main extends App with RequestTimeout {
 
   val log = Logging(system.eventStream, "playlist-notifier")
   bindingFuture.onComplete {
-    case Success(serverBinding) => {
+    case Success(serverBinding) =>
       log.info(s"RestApi bound to ${serverBinding.localAddress} ")
-    }
     case Failure(ex) =>
       log.error(ex, "Failed to bind to {}:{}!", host, port)
       // on failure, terminate the system gracefully
