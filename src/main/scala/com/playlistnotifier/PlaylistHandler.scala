@@ -10,6 +10,8 @@ object PlaylistHandler {
 
   case class GetPlaylist(name: String)
 
+  case object GetPlaylists
+
   case class FollowPlaylist(name: String)
 
   case class Playlist(name: String)
@@ -20,8 +22,6 @@ object PlaylistHandler {
 
   case object PlaylistAlreadyFollowed extends PlaylistResponse
 
-  case class PlaylistFound(playlist: Playlist) extends PlaylistResponse
-
   case object PlaylistNotFound extends PlaylistResponse
 }
 
@@ -29,15 +29,23 @@ class PlaylistHandler(implicit timeout: Timeout) extends Actor with ActorLogging
 
   import PlaylistHandler._
 
-  def receive: Receive = {
-    case GetPlaylist(name) => {
-      log.info(s"Received playlist request $name")
-      sender() ! PlaylistFound(Playlist(name))
-    }
-    case FollowPlaylist(name) => {
-      log.info(s"Received playlist $name")
-      sender() ! PlaylistFollowed(Playlist(name))
-    }
+  var followedPlaylists = Vector.empty[Playlist]
 
+  def receive: Receive = {
+    case GetPlaylist(name) =>
+      log.info(s"Received request get playlist $name")
+      sender() ! Playlist(name)
+    case GetPlaylists =>
+      log.info(s"Received request get all playlists")
+      sender() ! List(Playlist("Playlist placeholder"))
+    case FollowPlaylist(name) =>
+      log.info(s"Received request follow playlist $name")
+      val playlistRequest = Playlist(name)
+      if (followedPlaylists.contains(playlistRequest)) {
+        sender() ! PlaylistAlreadyFollowed
+      } else {
+        followedPlaylists = followedPlaylists :+ Playlist(name)
+        sender() ! PlaylistFollowed(Playlist(name))
+      }
   }
 }

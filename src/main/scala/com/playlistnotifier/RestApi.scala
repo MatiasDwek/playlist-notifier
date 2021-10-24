@@ -7,7 +7,6 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 import akka.pattern.ask
 import akka.util.Timeout
-import com.wrapper.spotify.requests.data.playlists.GetPlaylistRequest
 
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 
@@ -20,8 +19,7 @@ class RestApi(system: ActorSystem, timeout: Timeout)
   def createPlaylistHandler(): ActorRef = system.actorOf(PlaylistHandler.props, PlaylistHandler.name)
 }
 
-trait RestRoutes extends PlaylistHandlerApi
-  with PlaylistMarshalling {
+trait RestRoutes extends PlaylistHandlerApi with PlaylistMarshalling {
 
   import StatusCodes._
 
@@ -30,20 +28,24 @@ trait RestRoutes extends PlaylistHandlerApi
   def playlistRoute: Route =
     pathPrefix("playlists" / Segment) { playlist =>
       pathEndOrSingleSlash {
-        post {
-          println(s"TRACE ---->  $playlist")
-          // POST /playlists/:playlist
-          onSuccess(followPlaylist(playlist)) {
-            case PlaylistHandler.PlaylistFound(playlist) => complete(Created, playlist)
-            case PlaylistHandler.PlaylistNotFound => val err = Error(s"$playlist playlist not found already.")
-              complete(BadRequest, err)
-            case PlaylistHandler.PlaylistFollowed(playlist) => complete(Created, playlist)
-            case PlaylistHandler.PlaylistAlreadyFollowed =>
-              val err = Error(s"$playlist already followed.")
-              complete(BadRequest, err)
+        get {
+          // GET /playlists/:playlist
+          onSuccess(getPlaylist(playlist)) {
+            _.fold(complete(NotFound))(p => complete(OK, p))
           }
-
-        }
+        } ~
+          post {
+            // POST /playlists/:playlist
+            onSuccess(followPlaylist(playlist)) {
+              case PlaylistHandler.PlaylistNotFound => val err = Error(s"$playlist playlist not found.")
+                complete(NotFound, err)
+              case PlaylistHandler.PlaylistFollowed(playlist) =>
+                complete(Created, playlist)
+              case PlaylistHandler.PlaylistAlreadyFollowed =>
+                val err = Error(s"$playlist already followed.")
+                complete(BadRequest, err)
+            }
+          }
       }
     }
 
@@ -61,8 +63,12 @@ trait PlaylistHandlerApi {
 
   lazy val playlistHandler: ActorRef = createPlaylistHandler()
 
-  def getPlaylist(playlist: String): Future[PlaylistResponse] = {
-    playlistHandler.ask(GetPlaylist(playlist)).mapTo[PlaylistResponse]
+  def getPlaylist(playlist: String): Future[Option[Playlist]] = {
+    playlistHandler.ask(GetPlaylist(playlist)).mapTo[Option[Playlist]]
+  }
+
+  def getPlaylists: Future[PlaylistResponse] = {
+    playlistHandler.ask(GetPlaylists).mapTo[PlaylistResponse]
   }
 
   def followPlaylist(playlist: String): Future[PlaylistResponse] = {
