@@ -23,7 +23,7 @@ trait RestRoutes extends PlaylistHandlerApi with PlaylistMarshalling {
 
   import StatusCodes._
 
-  def routes: Route = playlistsRoute ~ playlistRoute
+  def routes: Route = playlistsRoute ~ playlistRoute ~ followedPlaylistsRoute
 
   def playlistsRoute: Route =
     pathPrefix("playlists") {
@@ -61,6 +61,18 @@ trait RestRoutes extends PlaylistHandlerApi with PlaylistMarshalling {
       }
     }
 
+  def followedPlaylistsRoute: Route =
+    pathPrefix("followed") {
+      pathEndOrSingleSlash {
+        get {
+          // GET /playlists
+          onSuccess(getFollowedPlaylists) { playlists =>
+            complete(OK, playlists)
+          }
+        }
+      }
+    }
+
 }
 
 trait PlaylistHandlerApi {
@@ -85,5 +97,9 @@ trait PlaylistHandlerApi {
 
   def followPlaylist(playlist: String): Future[PlaylistResponse] = {
     playlistHandler.ask(FollowPlaylist(playlist)).mapTo[PlaylistResponse]
+  }
+
+  def getFollowedPlaylists: Future[Playlists] = {
+    playlistHandler.ask(GetFollowedPlaylists).mapTo[Playlists]
   }
 }

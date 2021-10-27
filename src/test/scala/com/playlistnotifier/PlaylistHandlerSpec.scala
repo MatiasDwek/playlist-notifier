@@ -40,6 +40,12 @@ class PlaylistHandlerSpec extends TestKit(ActorSystem("testPlaylistHandler"))
       playlistHandler ! FollowPlaylist(PlaylistName)
       expectMsg(PlaylistAlreadyFollowed)
     }
+
+    "Get followed playlists" in {
+      val playlistHandler = system.actorOf(PlaylistHandler.props)
+      playlistHandler ! FollowPlaylist(PlaylistName)
+      expectMsg(PlaylistFollowed(Playlist(PlaylistName)))
+    }
   }
 
 
