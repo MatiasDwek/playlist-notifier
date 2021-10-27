@@ -9,5 +9,6 @@ trait PlaylistMarshalling extends DefaultJsonProtocol {
   import PlaylistHandler._
 
   implicit val playlistFormat: RootJsonFormat[Playlist] = jsonFormat1(Playlist)
+  implicit val playlistsFormat: RootJsonFormat[Playlists] = jsonFormat1(Playlists)
   implicit val errorFormat: RootJsonFormat[Error] = jsonFormat1(Error)
 }

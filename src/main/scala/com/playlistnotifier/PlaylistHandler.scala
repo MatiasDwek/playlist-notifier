@@ -16,6 +16,8 @@ object PlaylistHandler {
 
   case class Playlist(name: String)
 
+  case class Playlists(playlists: Vector[Playlist])
+
   sealed trait PlaylistResponse
 
   case class PlaylistFollowed(playlist: Playlist) extends PlaylistResponse
@@ -37,7 +39,7 @@ class PlaylistHandler(implicit timeout: Timeout) extends Actor with ActorLogging
       sender() ! Playlist(name)
     case GetPlaylists =>
       log.info(s"Received request get all playlists")
-      sender() ! List(Playlist("Playlist placeholder"))
+      sender() ! Playlists(Vector(Playlist("Playlist placeholder")))
     case FollowPlaylist(name) =>
       log.info(s"Received request follow playlist $name")
       val playlistRequest = Playlist(name)
