@@ -51,6 +51,4 @@ class PlaylistHandlerSpec extends TestKit(ActorSystem("testPlaylistHandler"))
       expectMsg(Playlists(Vector(playlist)))
     }
   }
-
-
 }
