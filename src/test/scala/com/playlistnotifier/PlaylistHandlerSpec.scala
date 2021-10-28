@@ -2,7 +2,7 @@ package com.playlistnotifier
 
 import akka.actor.ActorSystem
 import akka.testkit.{DefaultTimeout, ImplicitSender, TestKit}
-import com.playlistnotifier.PlaylistHandler.{FollowPlaylist, GetPlaylist, GetPlaylists, Playlist, PlaylistAlreadyFollowed, PlaylistFollowed, Playlists}
+import com.playlistnotifier.PlaylistHandler.{FollowPlaylist, GetFollowedPlaylists, GetPlaylist, GetPlaylists, Playlist, PlaylistAlreadyFollowed, PlaylistFollowed, Playlists}
 import org.scalatest.{MustMatchers, WordSpecLike}
 
 class PlaylistHandlerSpec extends TestKit(ActorSystem("testPlaylistHandler"))
@@ -42,9 +42,13 @@ class PlaylistHandlerSpec extends TestKit(ActorSystem("testPlaylistHandler"))
     }
 
     "Get followed playlists" in {
+      val playlist = Playlist(PlaylistName)
       val playlistHandler = system.actorOf(PlaylistHandler.props)
       playlistHandler ! FollowPlaylist(PlaylistName)
-      expectMsg(PlaylistFollowed(Playlist(PlaylistName)))
+      expectMsg(PlaylistFollowed(playlist))
+
+      playlistHandler ! GetFollowedPlaylists
+      expectMsg(Playlists(Vector(playlist)))
     }
   }
 
