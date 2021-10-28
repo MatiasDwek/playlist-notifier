@@ -8,7 +8,7 @@ object SecretFetcher {
 
   def name = "secretFetcher"
 
-  case class Placeholder(name: String)
+  case class GetAccessToken(user: String)
 }
 
 class SecretFetcher(implicit timeout: Timeout) extends Actor with ActorLogging {
@@ -16,7 +16,9 @@ class SecretFetcher(implicit timeout: Timeout) extends Actor with ActorLogging {
   import SecretFetcher._
 
   def receive: Receive = {
-    case Placeholder(name) =>
-      log.info(s"info")
+    case GetAccessToken(user) =>
+      log.info(s"Get access token for user $user")
+      val accessToken = sys.env("access_token") // FIXME
+      sender() ! accessToken
   }
 }
