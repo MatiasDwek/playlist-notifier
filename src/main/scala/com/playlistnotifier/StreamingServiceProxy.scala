@@ -2,21 +2,28 @@ package com.playlistnotifier
 
 import akka.actor._
 import akka.util.Timeout
+import com.playlistnotifier.SecretFetcher.GetAccessToken
+
 
 object StreamingServiceProxy {
-  def props(implicit timeout: Timeout): Props = Props(new StreamingServiceProxy)
+  def props(sysEnv: Map[String, String])(implicit timeout: Timeout): Props = Props(new StreamingServiceProxy(sysEnv))
 
   def name = "streamingServiceProxy"
 
-  case class Placeholder(name: String)
+  case object GetStreamingServicePlaylists
 }
 
-class StreamingServiceProxy(implicit timeout: Timeout) extends Actor with ActorLogging {
+class StreamingServiceProxy(sysEnv: Map[String, String])(implicit timeout: Timeout) extends Actor with ActorLogging {
 
   import StreamingServiceProxy._
+  import akka.pattern.{ask, pipe}
+
+  val secretFetcher: ActorRef = context.actorOf(SecretFetcher.props(sysEnv), SecretFetcher.name)
 
   def receive: Receive = {
-    case Placeholder(name) =>
-      log.info(s"info")
+    case GetStreamingServicePlaylists =>
+      log.info(s"Received get streaming service playlist $name")
+      val accessToken = secretFetcher.ask(GetAccessToken).mapTo[Option[String]]
+    //      accessToken.pipeToSelf(sender())
   }
 }
