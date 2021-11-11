@@ -1,6 +1,6 @@
 package com.playlistnotifier
 
-import akka.actor._
+import akka.actor.typed.{ActorRef, ActorSystem}
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
@@ -10,7 +10,7 @@ import akka.util.Timeout
 
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 
-class RestApi(system: ActorSystem, timeout: Timeout)
+class RestApi(system: ActorSystem[Nothing], timeout: Timeout)
   extends RestRoutes {
   implicit val requestTimeout: Timeout = timeout
 

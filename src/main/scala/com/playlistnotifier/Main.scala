@@ -1,6 +1,6 @@
 package com.playlistnotifier
 
-import akka.actor.ActorSystem
+import akka.actor.typed.ActorSystem
 import akka.event.Logging
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
@@ -17,7 +17,8 @@ object Main extends App with RequestTimeout {
   val host = config.getString("http.host") // Gets the host and a port from the configuration
   val port = config.getInt("http.port")
 
-  implicit val system: ActorSystem = ActorSystem() // ActorMaterializer requires an implicit ActorSystem
+  implicit val system: ActorSystem[Nothing] = ActorSystem[Nothing](PlaylistNotifier(), "playlist-notifier")
+  //  implicit val system: ActorSystem = ActorSystem() // ActorMaterializer requires an implicit ActorSystem
   implicit val ec: ExecutionContextExecutor = system.dispatcher // bindingFuture.map requires an implicit ExecutionContext
 
   val api = new RestApi(system, requestTimeout(config)).routes // the RestApi provides a Route

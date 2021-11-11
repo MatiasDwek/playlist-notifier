@@ -23,6 +23,7 @@ libraryDependencies ++= {
     "ch.qos.logback" % "logback-classic" % "1.1.3",
     "com.typesafe.akka" %% "akka-testkit" % akkaVersion % "test",
     "com.typesafe.akka" %% "akka-actor-typed" % akkaVersion,
+    "com.typesafe.akka" %% "akka-actor-testkit-typed" % "2.6.17" % Test,
     //"org.scalatest"     %% "scalatest"       % "2.2.0"       % "test"
     scalaTest % Test,
     // https://mvnrepository.com/artifact/se.michaelthelin.spotify/spotify-web-api-java

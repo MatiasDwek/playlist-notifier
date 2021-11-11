@@ -1,11 +1,11 @@
 package com.playlistnotifier
 
-import akka.actor.ActorSystem
+import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import akka.testkit.{DefaultTimeout, ImplicitSender, TestKit}
 import com.playlistnotifier.PlaylistHandler.{FollowPlaylist, GetFollowedPlaylists, GetPlaylist, GetPlaylists, Playlist, PlaylistAlreadyFollowed, PlaylistFollowed, Playlists}
 import org.scalatest.{MustMatchers, WordSpecLike}
 
-class PlaylistHandlerSpec extends TestKit(ActorSystem("testPlaylistHandler"))
+class PlaylistHandlerSpec extends ScalaTestWithActorTestKit
   with WordSpecLike
   with MustMatchers
   with ImplicitSender
