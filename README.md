@@ -1,3 +1,5 @@
+Moved to https://github.com/MatiasDwek/sticky-playlist
+
 # playlist-notifier
 
 Project is WIP
